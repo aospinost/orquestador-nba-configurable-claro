@@ -720,3 +720,36 @@ def validate(cfg: Config, columns: list[str] | None = None,
         if b.valor < 0:
             e.append(f"{w}: el valor no puede ser negativo.")
     return e
+
+
+# ---------------------------------------------------------------- edit helpers (used by the console)
+def next_id(existing: list[str], prefix: str, width: int = 2) -> str:
+    """Next free ID like R12 / N01 given the existing ones."""
+    nums = [int(e[len(prefix):]) for e in existing if e.startswith(prefix) and e[len(prefix):].isdigit()]
+    return f"{prefix}{(max(nums) + 1 if nums else 1):0{width}d}"
+
+
+def upsert_row(cfg: Config, table: str, row: dict, key: str = "id", old_key: str | None = None) -> None:
+    """Insert or replace the row whose ``key`` equals ``old_key`` (default row[key]). Stored as text."""
+    t = cfg.tables[table]
+    clean = {c: ("" if row.get(c) is None else str(row.get(c))) for c in COLUMNS[table]}
+    mask = t[key] == (old_key or clean[key])
+    if mask.any():
+        for c, v in clean.items():
+            t.loc[mask, c] = v
+    else:
+        cfg.tables[table] = pd.concat([t, pd.DataFrame([clean])], ignore_index=True)
+
+
+def delete_row(cfg: Config, table: str, value: str, key: str = "id") -> None:
+    t = cfg.tables[table]
+    cfg.tables[table] = t[t[key] != value].reset_index(drop=True)
+
+
+def replace_constant(cfg: Config, cid: str, rows: list[dict], old_id: str | None = None) -> None:
+    """Replace every condition row of a derived constant (each row carries id/nombre/tipo/...)."""
+    delete_row(cfg, "constantes", old_id or cid)
+    if rows:
+        new = pd.DataFrame([{c: ("" if r.get(c) is None else str(r.get(c))) for c in COLUMNS["constantes"]}
+                            for r in rows])
+        cfg.tables["constantes"] = pd.concat([cfg.tables["constantes"], new], ignore_index=True)

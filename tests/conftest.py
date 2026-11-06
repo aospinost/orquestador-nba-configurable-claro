@@ -50,8 +50,9 @@ def cfg(initial_cfg):
     return initial_cfg.copy()
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def tmp_store(tmp_path, monkeypatch):
+    """Every test writes live config / history into a temp folder, never into config/."""
     monkeypatch.setattr(config_store, "LIVE_DIR", tmp_path / "activa")
     monkeypatch.setattr(config_store, "HISTORY_DIR", tmp_path / "history")
     return tmp_path

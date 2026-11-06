@@ -1,4 +1,4 @@
-"""Golden rule: no product codes, campaign/channel names, rule IDs or data columns in engine/ code.
+"""Golden rule: no product codes, campaign/channel names, rule IDs or data columns in engine/ or app/.
 
 Checks identifiers and string literals (docstrings and comments are free text and may cite them).
 """
@@ -41,7 +41,8 @@ def test_no_hardcoded_business_values():
     words = forbidden()
     pattern = re.compile(r"(?<![\w-])(" + "|".join(map(re.escape, sorted(words, key=len, reverse=True))) + r")(?![\w-])")
     hits = []
-    for path in (ROOT / "engine").rglob("*.py"):
+    files = [*(ROOT / "engine").rglob("*.py"), *(ROOT / "app").rglob("*.py")]
+    for path in [f for f in files if f.name != "_estilo.py"]:  # style page: mock data for visual QA
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for line, text in _literals(tree):
             for m in pattern.finditer(text):

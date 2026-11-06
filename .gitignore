@@ -2,3 +2,4 @@
 __pycache__/
 .pytest_cache/
 config/history/
+data/in/cargas/

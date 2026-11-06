@@ -55,10 +55,10 @@ def kpi_row(cards: list[dict]) -> None:
             kpi_card(**card)
 
 
-def tile_html(icon_name: str, label: str, sub: str = "", state: str = "") -> str:
+def tile_html(icon_name: str, label: str, sub: str = "", state: str = "", small: bool = False) -> str:
     """White rounded square, red icon, uppercase label below. state: '' | 'ok' | 'dark'."""
     s = f'<div class="sub">{escape(sub)}</div>' if sub else ""
-    return (f'<div class="claro-tile"><div class="sq {state}">{icon(icon_name)}</div>'
+    return (f'<div class="claro-tile{" sm" if small else ""}"><div class="sq {state}">{icon(icon_name)}</div>'
             f'<div class="cap">{escape(label)}</div>{s}</div>')
 
 
@@ -81,6 +81,11 @@ def rule_chip_html(rule_id: str, state: str = "on", label: str = "") -> str:
 
 def rule_chip(rule_id: str, state: str = "on", label: str = "") -> None:
     st.html(rule_chip_html(rule_id, state, label))
+
+
+def chip_html(text: str, icon_name: str = "", state: str = "on") -> str:
+    """Plain pill (no on/off meaning), e.g. a channel name."""
+    return f'<span class="claro-chip {state}">{icon(icon_name) if icon_name else ""}{escape(text)}</span>'
 
 
 def status_badge_html(estado: str) -> str:

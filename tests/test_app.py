@@ -23,7 +23,7 @@ def app():
 
 @pytest.mark.parametrize("page", PAGES)
 def test_every_page_renders(app, page):
-    app.switch_page(f"pages/{page}.py").run()
+    app.switch_page(f"paginas/{page}.py").run()
     assert not app.exception, app.exception
 
 

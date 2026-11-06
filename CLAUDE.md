@@ -64,7 +64,7 @@ Implementation note for the engine: hard rules and thresholds are applied as **m
 ```
 app/
   Inicio.py                  # entrypoint: st.navigation + st.Page
-  pages/                     # one file per page (see PROMPTS)
+  paginas/                   # one file per page (see PROMPTS). NOT "pages/": Streamlit auto-loads that name as legacy pages and deep links skip st.navigation
   ui/theme.py, ui/components.py, ui/builders.py   # builders = reusable condition/expression/constraint editors
   static/                    # logo (only if provided by organizers), fonts
 .streamlit/config.toml

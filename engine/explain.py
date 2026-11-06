@@ -177,3 +177,35 @@ def build_reasons(inp: SolveInput, result: SolveResult, df: pd.DataFrame) -> pd.
             txt = "Sin acción."
         out.append(txt)
     return pd.Series(out, index=range(n), name="razon")
+
+
+OPERATOR_WORDS = {"==": "es", "!=": "no es", "<": "es menor que", "<=": "es menor o igual a", ">": "es mayor que",
+                  ">=": "es mayor o igual a", "en": "está en", "no_en": "no está en", "contiene": "contiene"}
+ACTION_WORDS = {"excluir": "Excluir", "bonificar": "Bonificar", "penalizar": "Penalizar"}
+
+
+def value_words(raw: str) -> str:
+    from engine.config_store import PRODUCT_PLACEHOLDER, split_list
+    vals = ["el producto de la campaña" if v == PRODUCT_PLACEHOLDER else v for v in split_list(raw)]
+    return ", ".join(vals) if vals else "(vacío)"
+
+
+def scope_words(rule) -> str:
+    vals = ", ".join(rule.alcance_valores)
+    many = len(rule.alcance_valores) > 1
+    if rule.alcance_nivel == "global":
+        return "todos los canales" if rule.tipo == "canal" else "todas las campañas"
+    return {"campana": f"las campañas {vals}" if many else f"la campaña {vals}",
+            "producto": f"los productos {vals}" if many else f"el producto {vals}",
+            "objetivo": f"los objetivos {vals}" if many else f"el objetivo {vals}",
+            "canal": f"los canales {vals}" if many else f"el canal {vals}"}.get(rule.alcance_nivel, vals)
+
+
+def rule_sentence(rule) -> str:
+    """Business sentence, e.g. 'Excluir la campaña C-TER cuando calificacion_riesgo está en C, P'."""
+    c = rule.condicion
+    s = (f"{ACTION_WORDS.get(rule.accion, rule.accion)} {scope_words(rule)} cuando {c.atributo} "
+         f"{OPERATOR_WORDS.get(c.operador, c.operador)} {value_words(c.valor)}")
+    if rule.accion != "excluir":
+        s += f" (peso {fmt(rule.peso, 2)})"
+    return s

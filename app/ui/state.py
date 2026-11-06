@@ -10,7 +10,7 @@ import datetime as dt
 
 import streamlit as st
 
-from engine import config_store, data_loader, pipeline
+from engine import config_store, data_loader, impact, pipeline
 from engine.optimizers import REGISTRY
 
 MAX_RUNS = 10
@@ -23,6 +23,7 @@ def init() -> None:
     if "applied_config" not in ss:
         ss["applied_config"] = ss["draft_config"].copy()
     ss.setdefault("runs", [])
+    ss.setdefault("cfg_rev", 0)
     ss.setdefault("optimizer", ss["draft_config"].param("optimizador.motor", "greedy"))
 
 
@@ -99,8 +100,79 @@ def execute(optimizer: str) -> dict:
     path, mtime = _data_key(cfg.param("datos.ruta"))
     out = _run(config_store.config_hash(cfg), optimizer, path, mtime, cfg)
     run = {"output": out, "metrics": out.metrics, "hash": out.config_hash, "optimizer": optimizer,
-           "timestamp": dt.datetime.now()}
+           "timestamp": dt.datetime.now(), "impacto": impact_summary(cfg)}
     ss = st.session_state
     ss["runs"] = (runs() + [run])[-MAX_RUNS:]
     ss["applied_config"] = cfg
     return run
+
+
+# ---------------------------------------------------------------- draft editing
+def rev() -> int:
+    """Changes whenever the draft is replaced wholesale; use it in editor widget keys."""
+    return st.session_state["cfg_rev"]
+
+
+def replace_draft(cfg: config_store.Config) -> None:
+    st.session_state["draft_config"] = cfg
+    st.session_state["cfg_rev"] += 1
+
+
+def discard_changes() -> None:
+    replace_draft(applied().copy())
+
+
+def restore_initial() -> None:
+    """Load the organizers' configuration into the draft (applied with "Aplicar y re-optimizar")."""
+    replace_draft(config_store.load_initial())
+
+
+def touch() -> None:
+    """Call after an in-place edit of the draft that other widgets must reflect."""
+    st.session_state["cfg_rev"] += 1
+
+
+def columns(cfg: config_store.Config | None = None) -> list[str]:
+    return list(clients(cfg).columns)
+
+
+def errors(cfg: config_store.Config | None = None) -> list[str]:
+    cfg = cfg or draft()
+    try:
+        df = clients(cfg)
+    except FileNotFoundError:
+        return [f"Datos: no se encontró el archivo '{cfg.param('datos.ruta')}'."]
+    return config_store.validate(cfg, list(df.columns), data_loader.numeric_columns(df))
+
+
+@st.cache_data(show_spinner=False, max_entries=32)
+def _impact(cfg_hash: str, data_path: str, mtime: float, _cfg: config_store.Config) -> dict:
+    return impact.summarize(_load_clients(data_path, mtime, _cfg), _cfg)
+
+
+def impact_summary(cfg: config_store.Config | None = None) -> dict:
+    cfg = cfg or draft()
+    path, mtime = _data_key(cfg.param("datos.ruta"))
+    return _impact(config_store.config_hash(cfg), path, mtime, cfg)
+
+
+@st.cache_data(show_spinner=False, max_entries=8)
+def _profile(data_path: str, mtime: float, _cfg: config_store.Config):
+    return impact.column_profile(_load_clients(data_path, mtime, _cfg))
+
+
+def column_profile(cfg: config_store.Config | None = None):
+    cfg = cfg or draft()
+    path, mtime = _data_key(cfg.param("datos.ruta"))
+    return _profile(path, mtime, cfg)
+
+
+def apply_and_run(optimizer: str | None = None) -> dict:
+    """Validate, snapshot + save the draft as the live config, then run the orchestrator."""
+    errs = errors()
+    if errs:
+        raise config_store.ConfigError(errs)
+    cfg = draft()
+    config_store.save(cfg, note="Aplicado desde la consola")
+    cfg.source = "activa"
+    return execute(optimizer or st.session_state.get("optimizer", "greedy"))

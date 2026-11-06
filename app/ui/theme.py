@@ -182,6 +182,12 @@ small, .stCaption, [data-testid="stCaptionContainer"] {{ font-size: 15px !import
 .claro-tile .sq.dark .material-symbols-rounded {{ color: {WHITE}; }}
 .claro-tile .cap {{ margin-top: .7rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700;
   font-size: 15px; color: {BLACK}; text-align: center; line-height: 1.2; }}
+.claro-tile.sm {{ width: 84px; }}
+.claro-tile.sm .sq {{ width: 72px; height: 72px; border-radius: 18px; }}
+.claro-tile.sm .sq .material-symbols-rounded {{ font-size: 38px; }}
+.claro-tile.sm .cap {{ margin-top: .4rem; }}
+.stButton > button:disabled, .stFormSubmitButton > button:disabled {{
+  opacity: .45; box-shadow: none; cursor: not-allowed; }}
 .claro-tile .sub {{ font-size: 15px; color: {GRAY_TEXT}; text-align: center; }}
 
 /* Chips and badges. */

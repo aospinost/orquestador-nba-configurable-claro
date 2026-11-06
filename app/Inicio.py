@@ -9,8 +9,10 @@ if str(ROOT) not in sys.path:
 import streamlit as st  # noqa: E402
 
 from app.ui import components as ui  # noqa: E402
+from app.ui import panels  # noqa: E402
 from app.ui import state  # noqa: E402
 from app.ui.theme import fmt_num, inject_css  # noqa: E402
+from engine import config_store  # noqa: E402
 from engine.config_store import ConfigError  # noqa: E402
 from engine.expressions import ExpressionError  # noqa: E402
 
@@ -19,7 +21,7 @@ st.set_page_config(page_title="Orquestador NBA · Claro", page_icon=":material/h
 inject_css()
 state.init()
 
-P = "pages/"  # relative to this entrypoint
+P = "paginas/"  # relative to this entrypoint; not "pages/", which Streamlit would auto-load as legacy pages
 SECTIONS = {
     "Resultado": [
         st.Page(P + "resumen.py", title="Resumen ejecutivo", icon=":material/space_dashboard:", default=True),
@@ -40,7 +42,6 @@ SECTIONS = {
     ],
 }
 STYLE_PAGE = st.Page(P + "_estilo.py", title="Guía de estilo", icon=":material/palette:", url_path="estilo")
-SIMULATOR = SECTIONS["Decisión"][0]
 
 # Hidden native menu: the sidebar below draws its own (and leaves the style page out of it).
 current = st.navigation([p for ps in SECTIONS.values() for p in ps] + [STYLE_PAGE], position="hidden")
@@ -64,12 +65,12 @@ with st.sidebar:
         help="Los optimizadores en construcción aparecen deshabilitados para ejecutar.")
     st.session_state["optimizer"] = choice
     available = opts[choice]["available"]
-    if st.button("Ejecutar orquestador", type="primary", icon=":material/play_arrow:", use_container_width=True,
+    if st.button("Ejecutar orquestador", type="primary", icon=":material/play_arrow:", width="stretch",
                  disabled=not available, help=None if available else "En construcción"):
         try:
             with st.status("Ejecutando orquestador…", expanded=False) as status:
                 st.write("Cargando datos y evaluando reglas…")
-                run = state.execute(choice)
+                run = state.apply_and_run(choice) if state.pending_changes() else state.execute(choice)
                 status.update(label="Corrida lista", state="complete")
             st.toast(f"Corrida lista · valor esperado {fmt_num(run['metrics']['valor_esperado'], 1)}",
                      icon=":material/check_circle:")
@@ -86,12 +87,36 @@ with st.sidebar:
            if last else "Sin corridas todavía")
         + "</div>")
 
+    with st.expander("Configuración", icon=":material/settings_backup_restore:"):
+        st.download_button("Exportar configuración (.zip)", config_store.export_bundle(cfg),
+                           file_name=f"configuracion_{state.draft_hash()}.zip", mime="application/zip",
+                           icon=":material/download:", width="stretch")
+        bundle = st.file_uploader("Importar configuración (.zip)", type=["zip"], key=f"import_{state.rev()}")
+        if bundle is not None:
+            try:
+                state.replace_draft(config_store.import_bundle(bundle.getvalue()))
+                st.rerun()
+            except Exception as exc:  # malformed bundle
+                st.error(f"No se pudo importar: {exc}")
+        if st.button("Restaurar configuración inicial", icon=":material/restart_alt:", width="stretch",
+                     help="Carga la configuración de los organizadores en el borrador; se aplica con "
+                          "\"Aplicar y re-optimizar\"."):
+            state.restore_initial()
+            st.rerun()
+
+
+
+@st.dialog("Cambios sin aplicar", width="large")
+def impact_dialog() -> None:
+    panels.impact_preview(key="banner")
+
+
 changes = state.pending_changes()
 if changes:
-    c1, c2 = st.columns([5, 1], vertical_alignment="center")
+    c1, c2 = st.columns([4.2, 1.3], vertical_alignment="center")
     with c1:
         ui.banner(f"Tienes {len(changes)} cambio{'s' if len(changes) != 1 else ''} sin aplicar")
-    with c2:
-        st.page_link(SIMULATOR, label="Ver impacto", icon=":material/insights:")
+    if c2.button("Ver impacto", icon=":material/insights:", width="stretch", key="banner_impact"):
+        impact_dialog()
 
 current.run()
