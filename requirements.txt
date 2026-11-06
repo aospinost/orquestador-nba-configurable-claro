@@ -1,0 +1,7 @@
+streamlit==1.50.0
+pandas==2.3.3
+numpy==2.3.4
+pyarrow==21.0.0
+plotly==6.3.1
+highspy==1.11.0
+pytest==8.4.2

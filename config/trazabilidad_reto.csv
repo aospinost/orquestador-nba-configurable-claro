@@ -1,0 +1,17 @@
+id_reto,nombre,fuentes
+R01,Ningun producto a clientes en mora,regla:R01
+R02,"Terminales solo a clientes con calificacion E, A o B",regla:R02
+R03,Terminales solo si el equipo actual tiene 18 meses o mas,regla:R03
+R04,Venta cruzada Hogar solo a quien no tiene servicio Hogar,regla:R04
+R05,Upgrade OTT solo a quien le falta alguna de las tres OTT,regla:R05
+R06,No ofrecer un producto que ya se le ofrecio en el mes,regla:R06
+R07,Ningun producto a clientes con 3 o mas quejas en 90 dias,regla:R07
+R08,No ofrecer un producto si su score es menor al umbral,sistema:P-UMBRAL-PROD
+R09,"WhatsApp, correo y SMS solo con autorizacion del cliente",regla:R08|regla:R09|regla:R10|sistema:P-AUTORIZACION
+R10,Asesor solo si el cliente ha recibido menos de 2 llamadas en el mes,regla:R11
+R11,No usar un canal si el score del cliente en ese canal es menor al umbral,sistema:P-UMBRAL-CANAL
+R12,Cada producto solo por los canales que tiene permitidos,sistema:P-CANAL-PERMITIDO
+R13,Un solo canal por cliente en cada corrida,sistema:P-CANALES-CLIENTE
+R14,Tope de productos por contacto segun el canal,sistema:P-MAX-PRODUCTOS
+R15,Tope de contactos por semana contando los ya recibidos,sistema:P-TOPE-SEMANAL
+R16,No superar el cupo de ningun canal,sistema:P-CAPACIDAD

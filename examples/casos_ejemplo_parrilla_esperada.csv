@@ -1,0 +1,6 @@
+id_cliente,estado,canal,campana_1,campana_2,razon
+CL000018,asignado,correo,C-TER,C-OTT,Mejor canal habilitado con cupo (correo); 2 producto(s) segun tope del canal
+CL000020,sin_accion,,,,Sin campana elegible (C-VCH:R01;C-TER:R01;C-OTT:R01)
+CL000039,asignado,asesor,C-VCH,,Mejor canal habilitado con cupo (asesor); 1 producto(s) segun tope del canal
+CL000089,sin_accion,,,,Tope semanal de contactos
+CL000741,asignado,sms,C-TER,C-OTT,Mejor canal habilitado con cupo (sms); 2 producto(s) segun tope del canal

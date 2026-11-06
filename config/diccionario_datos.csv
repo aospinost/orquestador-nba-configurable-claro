@@ -1,0 +1,46 @@
+columna,grupo,tipo,minimo,maximo,valores,descripcion
+id_cliente,Identificacion,texto,,,,Identificador unico del cliente
+region,Perfil,categoria,,,Bogota|Antioquia|Valle|Costa Caribe|Eje Cafetero|Santanderes|Centro|Sur,Region comercial
+estrato,Perfil,entero,1,6,,Estrato socioeconomico
+edad,Perfil,entero,18,80,,Edad del titular en anos
+antiguedad_meses,Perfil,entero,1,240,,Meses como cliente
+tipo_linea,Perfil,categoria,,,Postpago|Prepago,Tipo de linea movil
+plan_datos_gb,Servicios,entero,2,999,,Capacidad del plan de datos en GB (999 = ilimitado)
+consumo_datos_pct,Servicios,decimal,0,100,,Porcentaje del plan de datos consumido en el mes
+arpu_movil,Servicios,entero,5000,153000,,Ingreso mensual de la linea movil (COP)
+calificacion_riesgo,Riesgo,categoria,,,E|A|B|C|P,"Riesgo financiero, de mejor a peor"
+en_mora,Riesgo,binaria,0,1,,1 si tiene saldo vencido
+dias_mora,Riesgo,entero,0,90,,Dias de mora (0 si esta al dia)
+tiene_hogar,Servicios,binaria,0,1,,1 si tiene servicio Hogar (internet o TV fija)
+arpu_hogar,Servicios,entero,0,231000,,Ingreso mensual del servicio Hogar (COP; 0 si no tiene)
+tiene_netflix,Servicios,binaria,0,1,,1 si tiene Netflix con la compania
+tiene_amazon_prime,Servicios,binaria,0,1,,1 si tiene Amazon Prime con la compania
+tiene_win,Servicios,binaria,0,1,,1 si tiene Win Sports con la compania
+cantidad_ott,Servicios,entero,0,3,,Numero de OTT (Netflix + Amazon Prime + Win)
+usa_redes_sociales,Uso digital,binaria,0,1,,1 si usa redes sociales con frecuencia
+usa_banca_digital,Uso digital,binaria,0,1,,1 si usa banca digital
+compras_digitales,Uso digital,binaria,0,1,,1 si compra en linea
+edad_equipo_meses,Equipo,entero,0,84,,Meses de uso del equipo movil actual
+gama_equipo,Equipo,categoria,,,Baja|Media|Alta,Gama del equipo actual
+quejas_90d,Experiencia,entero,0,6,,Quejas en los ultimos 90 dias
+riesgo_churn,Experiencia,decimal,0,1,,Probabilidad estimada de abandono
+tiene_correo,Contactabilidad,binaria,0,1,,1 si tiene correo registrado
+autoriza_sms,Contactabilidad,binaria,0,1,,1 si autoriza contacto por SMS
+autoriza_correo,Contactabilidad,binaria,0,1,,1 si autoriza contacto por correo
+autoriza_whatsapp,Contactabilidad,binaria,0,1,,1 si autoriza contacto por WhatsApp
+contactos_mes,Historial de contactos,entero,0,8,,Contactos comerciales recibidos en el mes
+contactos_semana_actual,Historial de contactos,entero,0,3,,Contactos recibidos en la semana en curso
+contactos_asesor_mes,Historial de contactos,entero,0,8,,Contactos por asesor en el mes
+contactos_sms_mes,Historial de contactos,entero,0,8,,Contactos por SMS en el mes
+contactos_correo_mes,Historial de contactos,entero,0,8,,Contactos por correo en el mes
+contactos_whatsapp_mes,Historial de contactos,entero,0,8,,Contactos por WhatsApp en el mes
+canales_contactados_mes,Historial de contactos,lista,,,asesor|sms|correo|whatsapp,Canales usados en el mes
+productos_ofertados_mes,Historial de contactos,lista,,,TER|VCH|OTT,Productos ofertados en el mes
+dias_ultimo_contacto,Historial de contactos,entero,0,180,,Dias desde el ultimo contacto comercial
+score_terminales,Score de producto,decimal,0,1,,Propension a renovar terminal (TER)
+score_venta_cruzada_hogar,Score de producto,decimal,0,1,,Propension a contratar Hogar (VCH)
+score_upgrade_ott,Score de producto,decimal,0,1,,Propension a agregar una OTT (OTT)
+score_canal_asesor,Score de canal,decimal,0,1,,Probabilidad de respuesta por asesor
+score_canal_sms,Score de canal,decimal,0,1,,Probabilidad de respuesta por SMS
+score_canal_correo,Score de canal,decimal,0,1,,Probabilidad de respuesta por correo
+score_canal_whatsapp,Score de canal,decimal,0,1,,Probabilidad de respuesta por WhatsApp

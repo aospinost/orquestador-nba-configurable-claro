@@ -1,0 +1,12 @@
+parametro,valor,descripcion
+corrida.fecha,,Fecha de la corrida para evaluar vigencias (vacío = hoy)
+datos.ruta,data/in/clientes 1.csv,Ruta del CSV de clientes
+datos.columna_id,id_cliente,Columna que identifica al cliente
+datos.columnas_lista,,Columnas con listas separadas por barra vertical (vacío = detectar)
+politica_contacto.columna_contactos_semana,contactos_semana_actual,Columna con los contactos ya recibidos en la semana (R15)
+priorizacion.decimales_puntaje,6,Decimales del puntaje; puntajes iguales empatan y se resuelven con priorizacion.desempate
+optimizador.motor,greedy,Optimizador por defecto
+optimizador.tiempo_max_s,60,Tiempo máximo del optimizador MILP en segundos
+optimizador.gap,0.001,Brecha de optimalidad aceptada por el MILP
+objetivo.peso_valor,1,Peso del valor esperado en el objetivo del MILP
+objetivo.peso_jerarquia,0,Peso de la jerarquía en el objetivo del MILP (decisión del modelador)

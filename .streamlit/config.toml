@@ -1,0 +1,48 @@
+[server]
+enableStaticServing = true
+runOnSave = false
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "light"
+primaryColor = "#C22821"
+backgroundColor = "#FDFDFD"
+secondaryBackgroundColor = "#F2F3F0"
+textColor = "#332F2E"
+linkColor = "#C22821"
+borderColor = "#BDC3B8"
+redColor = "#C22821"
+grayColor = "#5E5A58"
+baseFontSize = 16
+baseRadius = "16px"
+buttonRadius = "full"
+showWidgetBorder = true
+showSidebarBorder = true
+chartCategoricalColors = ["#C22821", "#332F2E", "#8C918A", "#BDC3B8", "#E07B74", "#5E5A58"]
+# Kamerik 105 is not in app/static/fonts, so Jost (Google Fonts) is used.
+# When the official files are dropped there, replace the two lines below with:
+#   font = "Kamerik 105"
+#   headingFont = "Kamerik 105"
+# and uncomment the [[theme.fontFaces]] tables at the end of this file.
+font = "Jost:https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap"
+headingFont = "Jost:https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap"
+headingFontWeights = [800, 700, 700, 600, 600, 600]
+
+[theme.sidebar]
+backgroundColor = "#F2F3F0"
+secondaryBackgroundColor = "#FDFDFD"
+
+# [[theme.fontFaces]]
+# family = "Kamerik 105"
+# url = "app/static/fonts/Kamerik105-Bold.woff2"
+# weight = 700
+#
+# [[theme.fontFaces]]
+# family = "Kamerik 105"
+# url = "app/static/fonts/Kamerik105-Book.woff2"
+# weight = 400
