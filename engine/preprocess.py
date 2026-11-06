@@ -53,3 +53,20 @@ def build_solve_input(df: pd.DataFrame, cfg: Config) -> SolveInput:
         constants=consts,
         config_hash=config_hash(cfg),
     )
+
+
+def split_clients(inp: SolveInput) -> tuple[np.ndarray, np.ndarray]:
+    """Preprocessing step of the team's model (J. Reina, §5): separate clients before optimizing.
+
+    A client is "posible" if it is active (e.g. weekly cap, R15) and has at least one
+    (campaign, channel) pair that survives every hard rule: eligible campaign (R01-R08),
+    usable channel (R09-R11) and channel allowed for that campaign (R12).
+    Everyone else is "eliminado": the optimizer never sees them and they end as sin_accion;
+    their reason is already built by explain.py from the rule masks.
+
+    Returns the row indices of (posibles, eliminados).
+    """
+    # (n, P, C): True where client i could receive campaign p through channel c
+    pair_ok = inp.eligible[:, :, None] & inp.channel_ok[:, None, :] & inp.allowed[None, :, :]
+    posible = inp.client_active & pair_ok.any(axis=(1, 2))
+    return np.flatnonzero(posible), np.flatnonzero(~posible)
