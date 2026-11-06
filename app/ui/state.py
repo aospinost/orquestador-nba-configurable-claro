@@ -176,3 +176,17 @@ def apply_and_run(optimizer: str | None = None) -> dict:
     config_store.save(cfg, note="Aplicado desde la consola")
     cfg.source = "activa"
     return execute(optimizer or st.session_state.get("optimizer", "greedy"))
+
+
+def memo(run: dict, key: str, fn):
+    """Per-run cache for derived figures (funnel, flows, downloads…): computed once per run."""
+    cache = run.setdefault("_memo", {})
+    if key not in cache:
+        cache[key] = fn()
+    return cache[key]
+
+
+def run_config(cfg: config_store.Config, optimizer: str):
+    """Run any configuration (e.g. a scenario) without touching the draft or the applied config."""
+    path, mtime = _data_key(cfg.param("datos.ruta"))
+    return _run(config_store.config_hash(cfg), optimizer, path, mtime, cfg)

@@ -1,0 +1,8 @@
+escenario,nombre,descripcion,tabla,clave,campo,operacion,valor
+D1,Pausar OTT,La campaña C-OTT sale de la corrida,campanas,C-OTT,activa,asignar,0
+D2,"Cupo asesor +1.000",Mil llamadas de asesor más por corrida,canales,asesor,capacidad,sumar,1000
+D3,Jerarquía estricta,Siempre la campaña de mayor jerarquía elegible primero,parametros,priorizacion.modo,valor,asignar,jerarquia_estricta
+D4,"Umbral producto 0,45",Solo compiten campañas con score de producto de 0.45 o más,parametros,priorizacion.umbral_score_producto,valor,asignar,0.45
+D5,Prioridad: más peso al modelo,Pesos 0.8 modelo / 0.1 valor / 0.1 jerarquía,parametros,priorizacion.pesos.score_producto,valor,asignar,0.8
+D5,Prioridad: más peso al modelo,,parametros,priorizacion.pesos.valor_negocio,valor,asignar,0.1
+D5,Prioridad: más peso al modelo,,parametros,priorizacion.pesos.jerarquia,valor,asignar,0.1

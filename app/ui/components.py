@@ -49,10 +49,14 @@ def kpi_card(label: str, value: str, delta_vs_baseline: float | None = None, ico
     st.html(kpi_card_html(label, value, delta_vs_baseline, icon_name, **kw))
 
 
-def kpi_row(cards: list[dict]) -> None:
-    for col, card in zip(st.columns(len(cards)), cards):
-        with col:
-            kpi_card(**card)
+def kpi_row(cards: list[dict], per_row: int | None = None) -> None:
+    """Cards in equal columns; ``per_row`` wraps long rows so values never overflow at 1366 px."""
+    per_row = per_row or len(cards)
+    for start in range(0, len(cards), per_row):
+        chunk = cards[start:start + per_row]
+        for col, card in zip(st.columns(per_row), chunk):
+            with col:
+                kpi_card(**card)
 
 
 def tile_html(icon_name: str, label: str, sub: str = "", state: str = "", small: bool = False) -> str:

@@ -101,11 +101,12 @@ def evaluate_rules(df: pd.DataFrame, cfg: Config, campaigns: list[Campaign], cha
         cond = rule.condicion
         out.info[rule.id] = {"nombre": rule.nombre, "tipo": rule.tipo, "atributo": cond.atributo,
                              "operador": cond.operador, "valor": cond.valor, "accion": rule.accion,
-                             "peso": rule.peso, "sistema": False}
+                             "peso": rule.peso, "sistema": False, "alcance": rule.alcance_nivel, "objetivos": []}
         sign = {"excluir": 0.0, "bonificar": 1.0, "penalizar": -1.0}.get(rule.accion, 0.0)
         try:
             if rule.tipo == "elegibilidad":
                 targets = scope_campaigns(rule, campaigns)
+                out.info[rule.id]["objetivos"] = targets
                 hits = np.zeros((n, P), bool)
                 if needs_campaign(cond, per_campaign_consts):
                     for p in targets:
@@ -121,6 +122,7 @@ def evaluate_rules(df: pd.DataFrame, cfg: Config, campaigns: list[Campaign], cha
                     out.soft_hits[rule.id] = np.broadcast_to(hits[:, :, None], (n, P, C))
             elif rule.tipo == "canal":
                 targets = scope_channels(rule, channels)
+                out.info[rule.id]["objetivos"] = targets
                 hits = np.zeros((n, C), bool)
                 if targets:
                     m = evaluate(cond, EvalContext(df, constants))
