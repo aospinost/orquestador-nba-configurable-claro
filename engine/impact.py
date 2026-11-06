@@ -103,3 +103,41 @@ def column_profile(df: pd.DataFrame, max_categories: int = 40) -> pd.DataFrame:
             rows.append({"columna": c, "tipo": kind, "valores": sorted(u.tolist()) if kind == "categoria" else [],
                          "min": None, "max": None})
     return pd.DataFrame(rows)
+
+
+def potential_value(df: pd.DataFrame, cfg: Config) -> float:
+    """Upper bound of expected value ignoring capacities: each eligible client takes its best single
+    contact (best channel, top M_c feasible campaigns). Used to price what each rule costs."""
+    out, _ = _outcome(df, cfg)
+    camps, chans = cfg.active_campaigns, cfg.active_channels
+    if not camps or not chans:
+        return 0.0
+    sp = np.nan_to_num(_scores(df, [c.columna_score for c in camps]))
+    sc = np.nan_to_num(_scores(df, [c.columna_score for c in chans]))
+    vn = np.array([c.valor_negocio for c in camps])
+    best = np.zeros(len(df))
+    for k, ch in enumerate(chans):
+        allowed = np.array([ch.id in c.canales_permitidos for c in camps])
+        feas = out.eligible & allowed[None, :] & out.channel_ok[:, k, None] & out.client_active[:, None]
+        v = np.where(feas, sp * sc[:, k, None] * vn[None, :], 0.0)
+        best = np.maximum(best, -np.sort(-v, axis=1)[:, :ch.max_productos].sum(axis=1))
+    return float(best.sum())
+
+
+def rule_costs(df: pd.DataFrame, cfg: Config) -> pd.DataFrame:
+    """For each active exclusion rule: potential value if it were switched off, and the difference."""
+    base = potential_value(df, cfg)
+    rows = []
+    for r in cfg.rules:
+        if not r.activa or r.accion != "excluir":
+            continue
+        tmp = cfg.copy()
+        t = tmp.tables["reglas"]
+        t.loc[t["id"] == r.id, "activa"] = "0"
+        try:
+            without = potential_value(df, tmp)
+        except ERRORS:
+            continue
+        rows.append({"id": r.id, "nombre": r.nombre, "potencial_sin_regla": without, "costo": without - base})
+    return pd.DataFrame(rows, columns=["id", "nombre", "potencial_sin_regla", "costo"]).sort_values(
+        "costo", ascending=False, ignore_index=True)
