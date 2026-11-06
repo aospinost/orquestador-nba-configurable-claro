@@ -160,7 +160,20 @@ def build_reasons(inp: SolveInput, result: SolveResult, df: pd.DataFrame) -> pd.
                     parts.append(f"{inf.get('nombre', r)} ({r})")
             txt = "Sin acción: " + "; ".join(parts) + "." if parts else "Sin acción: cliente inactivo."
         elif st == ST_NO_CAMPAIGN:
-            txt = "Sin acción: ninguna campaña elegible. " + (blocked_campaigns(i, set()) or "") + "."
+            # Rules that block every campaign of this client (e.g. mora, quejas) are the reason the
+            # client was marked as not valid in preprocessing: cite only those, once.
+            per_camp = [set(camp_hits[i, p] or []) for p in range(P)]
+            common = [r for r in (camp_hits[i, 0] or []) if all(r in s for s in per_camp)] if P else []
+            if common:
+                def detail(r: str) -> str:
+                    if r == SYS_PRODUCT_THRESHOLD:  # one score per campaign
+                        return " (" + ", ".join(d.campaign(r, i, p)[len(r) + 2:-1] + f" en {inp.campaigns[p]}"
+                                                for p in range(P)) + ")"
+                    return d.campaign(r, i, 0)[len(r):]
+                txt = "Sin acción: cliente no válido por " + "; ".join(
+                    f"{r}: {reasons['info'].get(r, {}).get('nombre', r)}{detail(r)}" for r in common) + "."
+            else:
+                txt = "Sin acción: ninguna campaña elegible. " + (blocked_campaigns(i, set()) or "") + "."
         elif st == ST_NO_CHANNEL:
             el = [inp.campaigns[p] for p in range(P) if inp.eligible[i, p]]
             ch = blocked_channels(i)

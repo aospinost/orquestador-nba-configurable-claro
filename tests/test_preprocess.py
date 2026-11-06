@@ -44,6 +44,21 @@ def test_doc_rules_r01_r07_r15_are_eliminated(full_run, clients):
     assert set(np.flatnonzero(doc_rules)) <= set(eliminados)
 
 
+def test_eliminados_have_a_reason(full_run):
+    """Every eliminated client says in 'razon' why it was not valid."""
+    _, eliminados = preprocess.split_clients(full_run.inp)
+    razon = full_run.parrilla["razon"].to_numpy()[eliminados]
+    assert all(r.startswith("Sin acción:") and len(r) > 20 for r in razon)
+
+
+def test_reason_cites_the_rule_that_eliminated(full_run):
+    """A client in mora is not valid because of R01, cited once and directly."""
+    razon = full_run.parrilla.set_index("id_cliente").loc["CL000020", "razon"]
+    assert razon == "Sin acción: cliente no válido por R01: Sin venta a clientes en mora (en_mora = 1)."
+    razon = full_run.parrilla.set_index("id_cliente").loc["CL000089", "razon"]
+    assert "P-TOPE-SEMANAL" in razon
+
+
 def test_five_example_cases(full_run):
     """CL000020 (mora) and CL000089 (weekly cap) are eliminated; the other 3 are posibles."""
     inp = full_run.inp
